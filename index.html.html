@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Click the Target 🎯</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #222;
+    }
+
+    .container {
+      width: min(92%, 800px);
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 15px 40px rgba(0,0,0,.2);
+    }
+
+    h1 { margin-top: 0; }
+    p { color: #666; }
+
+    .form {
+      max-width: 400px;
+      margin: 25px auto 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 14px 25px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #667eea;
+      color: white;
+      margin-top: 12px;
+    }
+
+    button:hover { opacity: .9; }
+
+    .hidden { display: none; }
+
+    .info {
+      display: flex;
+      justify-content: space-around;
+      background: #f3f4ff;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    #gameArea {
+      position: relative;
+      height: 400px;
+      background: #f7f7f7;
+      border-radius: 15px;
+      overflow: hidden;
+    }
+
+    #target {
+      position: absolute;
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      background: #ff4757;
+      border: 5px solid white;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+      cursor: pointer;
+      transition: transform .08s;
+    }
+
+    #target:active { transform: scale(.85); }
+
+    .result {
+      font-size: 20px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- Start Screen -->
+    <div id="startScreen">
+      <h1>Click the Target 🎯</h1>
+      <p>Click the target as many times as you can in 30 seconds!</p>
+
+      <div class="form">
+        <input id="nameInput" type="text" placeholder="Enter your name">
+        <input id="ageInput" type="number" placeholder="Enter your age" min="1" max="120">
+        <button onclick="startGame()">Start Game</button>
+      </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen" class="hidden">
+      <h2>Hello, <span id="playerName"></span> 👋</h2>
+
+      <div class="info">
+        <div>Score: <span id="score">0</span></div>
+        <div>Time: <span id="time">30</span>s</div>
+      </div>
+
+      <div id="gameArea">
+        <div id="target" onclick="hitTarget()"></div>
+      </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="resultScreen" class="hidden">
+      <h1>Congratulations! 🎉</h1>
+      <h2>You scored <span id="congratsScore"></span> points! 🎯</h2>
+
+      <div class="result">
+        <div>Player: <strong id="resultName"></strong></div>
+        <div>Age: <strong id="resultAge"></strong></div>
+        <div>Your Score: <strong id="finalScore"></strong> 🎯</div>
+      </div>
+
+      <button onclick="resetGame()">Play Again</button>
+    </div>
+
+  </div>
+
+  <script>
+    let score = 0;
+    let timeLeft = 30;
+    let timer;
+    let playerName = "";
+    let playerAge = "";
+
+    const target = document.getElementById("target");
+    const gameArea = document.getElementById("gameArea");
+
+    function startGame() {
+      playerName = document.getElementById("nameInput").value.trim();
+      playerAge = document.getElementById("ageInput").value;
+
+      if (playerName === "" || playerAge === "") {
+        alert("Please enter your name and age.");
+        return;
+      }
+
+      score = 0;
+      timeLeft = 30;
+
+      document.getElementById("startScreen").classList.add("hidden");
+      document.getElementById("resultScreen").classList.add("hidden");
+      document.getElementById("gameScreen").classList.remove("hidden");
+
+      document.getElementById("playerName").textContent = playerName;
+      document.getElementById("score").textContent = score;
+      document.getElementById("time").textContent = timeLeft;
+
+      moveTarget();
+
+      timer = setInterval(function() {
+        timeLeft--;
+        document.getElementById("time").textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function hitTarget() {
+      score++;
+      document.getElementById("score").textContent = score;
+      moveTarget();
+    }
+
+    function moveTarget() {
+      const maxX = gameArea.clientWidth - target.offsetWidth;
+      const maxY = gameArea.clientHeight - target.offsetHeight;
+
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+
+      target.style.left = x + "px";
+      target.style.top = y + "px";
+    }
+
+    function endGame() {
+      clearInterval(timer);
+
+      document.getElementById("gameScreen").classList.add("hidden");
+      document.getElementById("resultScreen").classList.remove("hidden");
+
+      document.getElementById("resultName").textContent = playerName;
+      document.getElementById("resultAge").textContent = playerAge;
+      document.getElementById("finalScore").textContent = score;
+      document.getElementById("congratsScore").textContent = score;
+    }
+
+    function resetGame() {
+      document.getElementById("resultScreen").classList.add("hidden");
+      document.getElementById("startScreen").classList.remove("hidden");
+
+      document.getElementById("nameInput").value = "";
+      document.getElementById("ageInput").value = "";
+    }
+  </script>
+</body>
+</html>
